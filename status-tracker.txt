@@ -1,0 +1,3 @@
+nestID	date	status	obsvID
+B066	2020-09-01	active	ADA
+B111	2020-09-02	failed	MAD
