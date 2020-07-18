@@ -4,10 +4,32 @@ library(dplyr)
 library(ggplot2)
 library(sf)
 
-## load in road data
+## load in grid data
 
-road <- read_sf(file.path("basemap","hbef_roads")) # %>% st_transform(28356) # change EPSG if needed
+grid_main <- read_sf("basemap/HB Mid Grid.GPX") 
+# %>% st_transform(28356) # change EPSG if needed
+# save ranges of coordinates
+x.range <- max(grid_main[,1]) - min(grid_main[,1])
+y.range <- max(m[,2]) - min(m[,2])
 
+# order by greatest range
+if (x.range > y.range) {
+  sort.id <- order(m[,1])
+} else if (y.range > x.range) {
+  sort.id <- order(m[,2])
+} else if (y.range == x.range) {
+  sort.id <- order(m[,2])
+}
+
+# creat lines by previous sorting and save them in the list
+lines <- lapply(1:(length(sort.id)-1), function(i) {
+  st_linestring(rbind(multipoints[sort.id[i],], multipoints[sort.id[i+1],]))
+})
+
+# plot results
+plot(multipoints)
+plot(lines[[1]], col = "orange", lwd = 2, add = TRUE)
+plot(lines[[2]], col = "green", lwd = 2, add = TRUE)
 
 ## load in GPS points for nests
 
@@ -56,17 +78,17 @@ ggplot() +
   ) + 
   
   # roads
-  geom_sf(data = road) + 
+  geom_sf(data = grid_main)  
 
   # grid
   # geom_sf(data = grid) + 
 
-  # nests
-  geom_sf(data = data, 
-          aes(shape = status), 
-          show.legend = "point"
-          ) #+ 
-  
+  # # nests
+  # geom_sf(data = data, 
+  #         aes(shape = status), 
+  #         show.legend = "point"
+  #         ) #+ 
+  # 
   # # zoom to nest points
   # coord_sf(
   #   xlim = c(st_bbox(nests)[1] - 20, st_bbox(nests)[3] + 20), 
